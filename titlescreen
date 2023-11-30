@@ -1,0 +1,161 @@
+import turtle as t
+
+def drawtitle():
+    '''
+    
+
+    Returns
+    -------
+    A very awesome Teeko logo.
+    
+    Graphic design is my passion
+
+    '''
+    t.penup()
+    t.goto(-250, 300)
+    t.pendown()
+    t.width(15)
+    t.right(90)
+    t.fd(100)
+    t.circle(100, 90)
+    t.penup()
+    t.back(150)
+    t.left(90)
+    t.fd(150)
+    t.right(90)
+    t.pendown()
+    t.fd(200)
+    t.left(90)
+    t.circle(50, 270)
+    t.fd(150)
+    t.left(90)
+    t.circle(50, 270)
+    t.fd(50)
+    t.circle(50, 90)
+    t.fd(100)
+    t.bk(200)
+    t.right(90)
+    t.penup()
+    t.fd(50)
+    t.pendown()
+    t.circle(50, -180)
+    t.penup()
+    t.right(180)
+    t.fd(25)
+    t.pendown()
+    t.color("red")
+    t.rt(90)
+    t.begin_fill()
+    t.circle(100, 360)
+    t.end_fill()
+
+def reset():
+    '''
+    
+
+    Resets formatting things such as pen color and orientation
+    Also brings the turtle back to position (0,0)
+    Does not interfere with pen width
+
+    '''
+    t.color("black")
+    t.setheading(0)
+    t.penup()
+    t.goto(0,0)
+    t.pendown()
+
+def drawtitletexts():
+    '''
+    
+
+    Creates the graphic components of the Start and Rules buttons
+    Boxes them in a neat little rectangle for your clicking pleasure
+
+    '''
+    t.setheading(0)
+    t.write("START GAME", align="center", font=("Courier", 60, "normal"))
+    t.pendown()
+    t.fd(300)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(600)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(300)
+    t.penup()
+    
+    
+    t.right(90)
+    t.fd(100)
+    t.write("RULES", align="center", font=("Courier", 60, "normal"))
+    t.pendown()
+    t.left(90)
+    t.fd(150)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(300)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(150)
+    t.penup()
+
+def startbutton(x, y):
+    '''
+    
+
+    Parameters
+    ----------
+    x : integer
+        x position that is clicked
+    y : integer
+        y position that is clicked
+
+    If the place that the user clicks is within this range, the purpose of the
+    button will activate
+
+    '''
+    if x>-300 and x<300 and y>-50 and y<50:
+        print("howdy")
+        
+def rulesbutton(x, y):
+    '''
+    
+
+    Parameters
+    ----------
+    x : integer
+        x position that is clicked
+    y : integer
+        y position that is clicked
+
+    If the place that the user clicks is within this range, the purpose of the
+    button will activate
+
+    '''
+    if x>-150 and x<150 and y>-150 and y<-50:
+        print("whoop")
+
+############################## NO MORE FUNCTION LAND #########################
+
+#Glorious logo
+drawtitle()
+
+#Putting turtle in the right pos to not interfere with title
+reset()
+t.penup()
+t.right(90)
+t.fd(50)
+drawtitletexts()
+
+#Click input stuff
+t.onscreenclick(startbutton)
+t.onscreenclick(rulesbutton, add=True)
+t.listen()
+
+#Compile later
+t.mainloop()
+
