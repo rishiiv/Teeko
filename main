@@ -1,23 +1,54 @@
 import turtle
 import numpy as np
 
+def toint(list):
+    retlist = []
+    for i in list:
+        retlist.append(int(i[-1]))
+    return retlist
+
+#handles win conditions
+winfile = open("C:\\Users\\rishi\\OneDrive\\Desktop\\Win Conditions.txt","r")
+linelist = winfile.read().split('\n')
+winconditions = []
+for line in linelist:
+    templist = line.split('.')
+    tempagain = []
+    for row in templist:
+        tempcondition = row.split(',')
+        tempagain.append(toint(tempcondition))
+    winconditions.append(tempagain)
+
+print(winconditions)
+
+import turtle as t
+
+
 class Teeko:
 
     def __init__(self):
         
-        self.tilecount = [0]
-        self.isblack = True
-        self.alltilesplaced = False
+        #private variables
         self.boardarray = np.array([[-1,-1,-1,-1,-1],
                                     [-1,-1,-1,-1,-1],
                                     [-1,-1,-1,-1,-1],
                                     [-1,-1,-1,-1,-1],
                                     [-1,-1,-1,-1,-1]])
-        print(self.boardarray)
+        self.tilecount = [0]
+        self.isblack = True
+        self.alltilesplaced = False
+        self.movingpiece = False
+        self.adjacentarray = None
+        self.piecetomove = None
+        
+       
 
 
+        #initiates window
         self.screen = turtle.Screen()
         self.screen.setup(1000,700,10,10)
+        self.screen.clear()
+        self.screen.bgcolor('sea green')
         self.screen.tracer(0, 0)
         turtle.ht()
         self.draw_board()
@@ -27,14 +58,16 @@ class Teeko:
     def draw_board(self):
     
         #Game Board
-        # -450--50 x 300--100
+        #Dimensions: -450--50 x 300--100
         y = 300
         x = -450
-        turtle.width(2)
+        turtle.width(3)
         turtle.penup()
         turtle.setx(x)
         turtle.sety(y)
         turtle.pendown()
+
+        #creates grid
         for i in range(4):
             turtle.forward(400)
             turtle.right(90)
@@ -56,8 +89,8 @@ class Teeko:
         
         ################################################################################################
 
-        #Rules Button
-        # 200-300 x 250-270
+        #creates rules button
+        #Dimensions: 200-300 x 250-270
         turtle.penup()
         turtle.goto(200,250)
         turtle.pendown()
@@ -74,23 +107,47 @@ class Teeko:
         
         turtle.update()
     
-    def draw_circle(self,xcoord,ycoord,c):
-    
+    def draw_circle(self,xcoord,ycoord,c, fc = 'black'):
+        turtle.setheading(0)
+        if c == '0':
+            colour = 'red'
+        elif c == '1':
+            colour = 'black'
+        else:
+            colour = c
         turtle.penup()
         turtle.setx(xcoord+40)
         turtle.sety(ycoord+68)
         turtle.pendown()
-        turtle.color(c)
+        turtle.color(fc)
+        turtle.fillcolor(colour)
 
         turtle.begin_fill()
-        for i in range(360):
+        for i in range(400):
             turtle.forward(.5)
             turtle.right(1)
         turtle.end_fill()
+        for i in range(40):
+            turtle.back(.5)
+            turtle.left(1)
     
+    def draw_square(self, xcoord,ycoord,c='lime'):
+        turtle.penup()
+        turtle.setx(-450 + 80*(ycoord)+5)
+        turtle.sety(-100 + 80*(5-xcoord)-5)
+        turtle.pendown()
+        turtle.color(c)
+        turtle.width(4)
+        turtle.setheading(0)
+        for i in range(4):
+            turtle.forward(70)
+            turtle.right(90)
+        turtle.width(3)
+        turtle.update()
+
     def showrules(self):
         turtle.penup()
-        turtle.goto(-350,-300)
+        turtle.goto(20,-150)
         turtle.pendown()
         turtle.write("The Teeko board consists of twenty-five \nspaces arranged in a five-by-five grid. \n"
                     +"There are eight markers in a Teeko game, \nfour black and four red. One player,\n"
@@ -102,8 +159,75 @@ class Teeko:
                     +"square of four adjacent spaces. (Adjacency \nis horizontal, vertical, or diagonal, but \n"
                     +"does not wrap around the edges of the board.)\n If neither player has won after the drop \n"
                     +"(when all eight pieces are on the board), \nthen they move their pieces one at a time, \n"
-                    +"with Black playing first. A piece may be \nmoved only to an adjacent space",font=('Courier',5,'normal'))
+                    +"with Black playing first. A piece may be \nmoved only to an adjacent space",font=('Courier',12,'normal'))
         turtle.update()
+
+    def getadjacent(self,x,y):
+        adjacents = np.array([[x-1,y-1],[x-1,y],[x-1,y+1],[x,y+1],[x+1,y+1],[x+1,y],[x+1,y-1],[x,y-1]])
+        
+        return adjacents
+    
+    def movepiece(self,xwin,ywin,x,y,color):
+        #placing a piece
+        if not self.alltilesplaced:
+            if self.boardarray[(x,y)] == -1:
+                self.draw_circle(xwin,ywin,color)
+                self.tilecount[0] += 1
+                self.boardarray[(x,y)] = self.isblack
+                self.isblack = not self.isblack
+                
+        #moving a piece
+        elif self.movingpiece:
+            print(self.adjacentarray)
+
+            #checks if the moving position is adjacent
+            isadjacent = False
+            for i in self.adjacentarray:
+                if i[0] == x and i[1] == y:
+                    isadjacent = True
+                    
+            #moves the piece
+            if isadjacent and self.boardarray[(x,y)] == -1:
+                #draws new circle
+                self.draw_circle(-450 + y*80, -100 + (4-x)*80, str(self.piecetomove[2]))
+                self.boardarray[(x,y)] = self.piecetomove[2]
+                        
+                #removes old circle
+                oldx = self.piecetomove[0]
+                oldy = self.piecetomove[1]
+                self.draw_circle(-450 + oldy*80, -100 + (4-oldx)*80,'sea green','sea green')
+                self.boardarray[(oldx,oldy)] = -1
+                
+                #removes old square
+                self.draw_square(oldx,oldy,'sea green')
+
+                self.movingpiece = False
+                self.adjacentarray = None
+                print(f"THeee: {self.piecetomove}")
+                self.piecetomove = None
+                self.isblack = not self.isblack
+
+        #picking up a piece
+        else:
+            if self.isblack:
+                turn = 1
+            else:
+                turn = 0
+
+            thispiececolor = self.boardarray[(x,y)]
+            if thispiececolor != -1:
+                if thispiececolor == turn:
+                    print('there is a piece here')
+                    self.draw_square(x,y)
+                    self.adjacentarray = self.getadjacent(x,y)
+                    self.movingpiece = True
+                    self.piecetomove = [x,y,self.boardarray[(x,y)]]
+                    print(self.piecetomove)
+                else:
+                    print("you can't move this piece biatch")
+
+            else:
+                print("There is NOT a piece here")    
 
     def buttonClick(self,x,y):
         
@@ -114,199 +238,120 @@ class Teeko:
                 color_local = 'red'
         else:
             self.alltilesplaced = True
-        
-        #Each of 25 squares
+            color_local = None
+
+#Each of 25 squares
+#########################################################################################
         if x > -450 and x < -370:
             if y > -100 and y < -20:
-                if not self.alltilesplaced:
-                    if self.boardarray[(4,0)] == -1:
-                        self.draw_circle(-450,-100,color_local)
-                        self.tilecount[0] += 1
-                        self.boardarray[(4,0)] = self.isblack
-                        self.isblack = not self.isblack
-                else:
-                    thispiececolor = self.boardarray[(4,0)]
-                    if thispiececolor != -1:
-                        print("there is a piece here")
-                    else:
-                        print("There is NOT a piece here")
-                    
-                    
+                self.movepiece(-450,-100,4,0,color_local)
+                
+            #############################################################################        
             if y > -20 and y < 60:
-                if self.boardarray[(3,0)] == -1:
-                    self.draw_circle(-450,-20,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(3,0)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-450,-20,3,0,color_local)
+
+            #############################################################################
             if y > 60 and y < 140:
-                if self.boardarray[(2,0)] == -1:
-                    self.draw_circle(-450,60,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(2,0)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-450,60,2,0,color_local)
+            
+            #############################################################################        
             if y > 140 and y < 220:
-                if self.boardarray[(1,0)] == -1:
-                    self.draw_circle(-450,140,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(1,0)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-450,140,1,0,color_local)
+            
+            #############################################################################        
             if y > 220 and y < 300:
-                if self.boardarray[(0,0)] == -1:
-                    self.draw_circle(-450,220,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(0,0)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-450,220,0,0,color_local)
+
+#########################################################################################    
         if x > -370 and x < -290:
             if y > -100 and y < -20:
-                if self.boardarray[(4,1)] == -1:
-                    self.draw_circle(-370,-100,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(4,1)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-370,-100,4,1,color_local)
+            #############################################################################        
             if y > -20 and y < 60:
-                if self.boardarray[(3,1)] == -1:
-                    self.draw_circle(-370,-20,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(3,1)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-370,-20,3,1,color_local)
+
+            #############################################################################        
             if y > 60 and y < 140:
-                if self.boardarray[(2,1)] == -1:
-                    self.draw_circle(-370,60,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(2,1)] = self.isblack
-                    self.isblack = not self.isblack
+                self.movepiece(-370,60,2,1,color_local)
                 
+            #############################################################################
             if y > 140 and y < 220:
-                if self.boardarray[(1,1)] == -1:
-                    self.draw_circle(-370,140,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(1,1)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-370,140,1,1,color_local)
+
+            #############################################################################        
             if y > 220 and y < 300:
-                if self.boardarray[(0,1)] == -1:
-                    self.draw_circle(-370,220,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(0,1)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-370,220,0,1,color_local)
+
+#########################################################################################                    
         if x > -290 and x < -210:
             if y > -100 and y < -20:
-                if self.boardarray[(4,2)] == -1:
-                    self.draw_circle(-290,-100,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(4,2)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-290,-100,4,2,color_local)
+
+            #############################################################################        
             if y > -20 and y < 60:
-                if self.boardarray[(3,2)] == -1:
-                    self.draw_circle(-290,-20,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(3,2)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-290,-20,3,2,color_local)
+
+            #############################################################################        
             if y > 60 and y < 140:
-                if self.boardarray[(2,2)] == -1:
-                    self.draw_circle(-290,60,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(2,2)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-290,60,2,2,color_local)
+
+            #############################################################################        
             if y > 140 and y < 220:
-                if self.boardarray[(1,2)] == -1:
-                    self.draw_circle(-290,140,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(1,2)] = self.isblack
-                    self.isblack = not self.isblack
+                self.movepiece(-290,140,1,2,color_local)
                     
+            #############################################################################
             if y > 220 and y < 300:
-                if self.boardarray[(0,2)] == -1:
-                    self.draw_circle(-290,220,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(0,2)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-290,220,0,2,color_local)
+        
+#########################################################################################                    
         if x > -210 and x < -130:
             if y > -100 and y < -20:
-                if self.boardarray[(4,3)] == -1:
-                    self.draw_circle(-210,-100,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(4,3)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-210,-100,4,3,color_local)
+
+            #############################################################################        
             if y > -20 and y < 60:
-                if self.boardarray[(3,3)] == -1:
-                    self.draw_circle(-210,-20,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(3,3)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-210,-20,3,3,color_local)
+
+            #############################################################################        
             if y > 60 and y < 140:
-                if self.boardarray[(2,3)] == -1:
-                    self.draw_circle(-210,60,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(2,3)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-210,60,2,3,color_local)
+
+            #############################################################################        
             if y > 140 and y < 220:
-                if self.boardarray[(1,3)] == -1:
-                    self.draw_circle(-210,140,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(1,3)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-210,140,1,3,color_local)
+
+            #############################################################################        
             if y > 220 and y < 300:
-                if self.boardarray[(0,3)] == -1:
-                    self.draw_circle(-210,220,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(0,3)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-210,220,0,3,color_local)
+
+#########################################################################################                    
         if x > -130 and x < -50:
             if y > -100 and y < -20:
-                if self.boardarray[(4,4)] == -1:
-                    self.draw_circle(-130,-100,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(4,4)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-130,-100,4,4,color_local)
+
+            #############################################################################        
             if y > -20 and y < 60:
-                if self.boardarray[(3,4)] == -1:
-                    self.draw_circle(-130,-20,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(3,4)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-130,-20,3,4,color_local)
+
+            #############################################################################        
             if y > 60 and y < 140:
-                if self.boardarray[(2,4)] == -1:
-                    self.draw_circle(-130,60,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(2,4)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-130,60,2,4,color_local)
+
+            #############################################################################        
             if y > 140 and y < 220:
-                if self.boardarray[(1,4)] == -1:
-                    self.draw_circle(-130,140,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(1,4)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-130,140,1,4,color_local)
+
+            #############################################################################        
             if y > 220 and y < 300:
-                if self.boardarray[(0,4)] == -1:
-                    self.draw_circle(-130,220,color_local)
-                    self.tilecount[0] += 1
-                    self.boardarray[(0,4)] = self.isblack
-                    self.isblack = not self.isblack
-                    
+                self.movepiece(-130,220,0,4,color_local)
+
+#########################################################################################
+        #print(self.boardarray)
+        if self.isblack:
+            print("Black's turn!")
+        else:
+            print("Red's turn!")
         
-
-
         #Show rules
         if x > 200 and x < 300 and y > 250 and y < 270:
             self.showrules()
@@ -316,5 +361,168 @@ class Teeko:
         turtle.done()
 
 
-game = Teeko()
-game.stop()
+def drawtitle():
+    '''
+    
+
+    Returns
+    -------
+    A very awesome Teeko logo.
+    
+    Graphic design is my passion
+
+    '''
+    t.penup()
+    t.goto(-250, 300)
+    t.pendown()
+    t.width(15)
+    t.right(90)
+    t.fd(100)
+    t.circle(100, 90)
+    t.penup()
+    t.back(150)
+    t.left(90)
+    t.fd(150)
+    t.right(90)
+    t.pendown()
+    t.fd(200)
+    t.left(90)
+    t.circle(50, 270)
+    t.fd(150)
+    t.left(90)
+    t.circle(50, 270)
+    t.fd(50)
+    t.circle(50, 90)
+    t.fd(100)
+    t.bk(200)
+    t.right(90)
+    t.penup()
+    t.fd(50)
+    t.pendown()
+    t.circle(50, -180)
+    t.penup()
+    t.right(180)
+    t.fd(25)
+    t.pendown()
+    t.fillcolor("red")
+    t.rt(90)
+    t.begin_fill()
+    t.circle(100, 360)
+    t.end_fill()
+
+def reset():
+    '''
+    
+
+    Resets formatting things such as pen color and orientation
+    Also brings the turtle back to position (0,0)
+    Does not interfere with pen width
+
+    '''
+    t.color("black")
+    t.setheading(0)
+    t.penup()
+    t.goto(0,0)
+    t.pendown()
+
+def drawtitletexts():
+    '''
+    
+
+    Creates the graphic components of the Start and Rules buttons
+    Boxes them in a neat little rectangle for your clicking pleasure
+
+    '''
+    t.setheading(0)
+    t.write("START GAME", align="center", font=("Courier", 60, "normal"))
+    t.pendown()
+    t.fd(300)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(600)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(300)
+    t.penup()
+    
+    
+    t.right(90)
+    t.fd(100)
+    t.write("RULES", align="center", font=("Courier", 60, "normal"))
+    t.pendown()
+    t.left(90)
+    t.fd(150)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(300)
+    t.left(90)
+    t.fd(100)
+    t.left(90)
+    t.fd(150)
+    t.penup()
+
+def startbutton(x, y):
+    '''
+    
+
+    Parameters
+    ----------
+    x : integer
+        x position that is clicked
+    y : integer
+        y position that is clicked
+
+    If the place that the user clicks is within this range, the purpose of the
+    button will activate
+
+    '''
+    if x>-300 and x<300 and y>-50 and y<50:
+        game = Teeko()
+        game.stop()
+        
+def rulesbutton(x, y):
+    '''
+    
+
+    Parameters
+    ----------
+    x : integer
+        x position that is clicked
+    y : integer
+        y position that is clicked
+
+    If the place that the user clicks is within this range, the purpose of the
+    button will activate
+
+    '''
+    if x>-150 and x<150 and y>-150 and y<-50:
+        print("whoop")
+
+
+############################## NO MORE FUNCTION LAND #########################
+
+#Setting up screen
+t.setup(1000,700,10,10)
+t.bgcolor('sea green')
+
+#Glorious logo
+drawtitle()
+
+#Putting turtle in the right pos to not interfere with title
+reset()
+t.penup()
+t.right(90)
+t.fd(50)
+drawtitletexts()
+
+#Click input stuff
+t.onscreenclick(startbutton)
+t.onscreenclick(rulesbutton, add=True)
+t.listen()
+
+#Compile later
+t.mainloop()
+
