@@ -1,4 +1,4 @@
-import turtle
+import turtle as t
 import numpy as np
 
 def toint(list):
@@ -8,18 +8,7 @@ def toint(list):
     return retlist
 
 #handles win conditions
-winfile = open("C:\\Users\\rishi\\OneDrive\\Desktop\\Win Conditions.txt","r")
-linelist = winfile.read().split('\n')
-winconditions = []
-for line in linelist:
-    templist = line.split('.')
-    tempagain = []
-    for row in templist:
-        tempcondition = row.split(',')
-        tempagain.append(toint(tempcondition))
-    winconditions.append(tempagain)
 
-print(winconditions)
 
 import turtle as t
 
@@ -34,26 +23,64 @@ class Teeko:
                                     [-1,-1,-1,-1,-1],
                                     [-1,-1,-1,-1,-1],
                                     [-1,-1,-1,-1,-1]])
+        
         self.tilecount = [0]
-        self.isblack = True
         self.alltilesplaced = False
+        
+        self.rulesshowing = False
+        self.rulebuttontext = 'Show Rules'
+        
+        self.isblack = True
+        
         self.movingpiece = False
-        self.adjacentarray = None
         self.piecetomove = None
+        self.adjacentarray = None
         
        
 
 
         #initiates window
-        self.screen = turtle.Screen()
+        self.screen = t.Screen()
         self.screen.setup(1000,700,10,10)
         self.screen.clear()
         self.screen.bgcolor('sea green')
         self.screen.tracer(0, 0)
-        turtle.ht()
+        t.ht()
         self.draw_board()
         self.screen.onscreenclick(self.buttonClick,1)
         self.screen.listen()
+    
+    def createrulesbutton(self):
+        #creates rules button
+        #Dimensions: 200-300 x 250-270
+        t.penup()
+        t.goto(200,250)
+        t.pendown()
+        t.setheading(0)
+        t.color('sea green')
+        t.fillcolor('sea green')
+        t.begin_fill()
+        for i in range(2):
+            t.forward(100)
+            t.left(90)
+            t.forward(20)
+            t.left(90)
+        t.end_fill()
+
+        t.penup()
+        t.goto(200,250)
+        t.pendown()
+        t.setheading(0)
+        t.color('black')
+        for i in range(2):
+            t.forward(100)
+            t.left(90)
+            t.forward(20)
+            t.left(90)
+        t.penup()
+        t.goto(200,250)
+        t.write(self.rulebuttontext, font=('Courier',12,'normal'))
+        t.update()
 
     def draw_board(self):
     
@@ -61,95 +88,78 @@ class Teeko:
         #Dimensions: -450--50 x 300--100
         y = 300
         x = -450
-        turtle.width(3)
-        turtle.penup()
-        turtle.setx(x)
-        turtle.sety(y)
-        turtle.pendown()
+        t.width(3)
+        t.penup()
+        t.setx(x)
+        t.sety(y)
+        t.pendown()
 
         #creates grid
         for i in range(4):
-            turtle.forward(400)
-            turtle.right(90)
+            t.forward(400)
+            t.right(90)
         for j in range(2):
             for i in range(2):
-                turtle.forward(80)
-                turtle.right(90)
-                turtle.forward(400)
-                turtle.left(90)
-                turtle.forward(80)
-                turtle.left(90)
-                turtle.forward(400)
-                turtle.right(90)
-            turtle.penup()
-            turtle.setx(x+400)
-            turtle.sety(y)
-            turtle.right(90)
-            turtle.pendown()
+                t.forward(80)
+                t.right(90)
+                t.forward(400)
+                t.left(90)
+                t.forward(80)
+                t.left(90)
+                t.forward(400)
+                t.right(90)
+            t.penup()
+            t.setx(x+400)
+            t.sety(y)
+            t.right(90)
+            t.pendown()
         
-        ################################################################################################
-
-        #creates rules button
-        #Dimensions: 200-300 x 250-270
-        turtle.penup()
-        turtle.goto(200,250)
-        turtle.pendown()
-        turtle.right(180)
-        for i in range(2):
-            turtle.forward(100)
-            turtle.left(90)
-            turtle.forward(20)
-            turtle.left(90)
-        turtle.penup()
-        turtle.goto(200,250)
-        rulesshow = 'Show Rules'
-        turtle.write(rulesshow, font=('Courier',12,'normal'))
+        self.createrulesbutton()
+        t.update
         
-        turtle.update()
-    
     def draw_circle(self,xcoord,ycoord,c, fc = 'black'):
-        turtle.setheading(0)
+        t.setheading(0)
         if c == '0':
             colour = 'red'
         elif c == '1':
             colour = 'black'
         else:
             colour = c
-        turtle.penup()
-        turtle.setx(xcoord+40)
-        turtle.sety(ycoord+68)
-        turtle.pendown()
-        turtle.color(fc)
-        turtle.fillcolor(colour)
+        t.penup()
+        t.setx(xcoord+40)
+        t.sety(ycoord+68)
+        t.pendown()
+        t.color(fc)
+        t.fillcolor(colour)
 
-        turtle.begin_fill()
+        t.begin_fill()
         for i in range(400):
-            turtle.forward(.5)
-            turtle.right(1)
-        turtle.end_fill()
+            t.forward(.5)
+            t.right(1)
+        t.end_fill()
         for i in range(40):
-            turtle.back(.5)
-            turtle.left(1)
+            t.back(.5)
+            t.left(1)
     
-    def draw_square(self, xcoord,ycoord,c='lime'):
-        turtle.penup()
-        turtle.setx(-450 + 80*(ycoord)+5)
-        turtle.sety(-100 + 80*(5-xcoord)-5)
-        turtle.pendown()
-        turtle.color(c)
-        turtle.width(4)
-        turtle.setheading(0)
+    def draw_square(self, xcoord,ycoord,c='cyan'):
+        t.penup()
+        t.setx(-450 + 80*(ycoord)+5)
+        t.sety(-100 + 80*(5-xcoord)-5)
+        t.pendown()
+        t.color(c)
+        t.width(4)
+        t.setheading(0)
         for i in range(4):
-            turtle.forward(70)
-            turtle.right(90)
-        turtle.width(3)
-        turtle.update()
+            t.forward(70)
+            t.right(90)
+        t.width(3)
+        t.update()
 
     def showrules(self):
-        turtle.penup()
-        turtle.goto(20,-150)
-        turtle.pendown()
-        turtle.write("The Teeko board consists of twenty-five \nspaces arranged in a five-by-five grid. \n"
+        t.penup()
+        t.goto(20,-160)
+        t.pendown()
+        t.write("The Teeko board consists of twenty-five \nspaces arranged in a five-by-five grid. \n"
                     +"There are eight markers in a Teeko game, \nfour black and four red. One player,\n"
                     +" Black plays the black markers, and the \nother, Red, plays the red. Black moves \n"
                     +"first and places one marker on any space \non the board. Red then places a marker \n"
@@ -160,13 +170,66 @@ class Teeko:
                     +"does not wrap around the edges of the board.)\n If neither player has won after the drop \n"
                     +"(when all eight pieces are on the board), \nthen they move their pieces one at a time, \n"
                     +"with Black playing first. A piece may be \nmoved only to an adjacent space",font=('Courier',12,'normal'))
-        turtle.update()
+        
+        self.changerulebutton()
+        self.rulesshowing = True
+        t.update()
+
+    def hiderules(self):
+        t.penup()
+        t.goto(10,-170)
+        t.setheading(0)
+        t.pendown
+        t.color('sea green')
+        t.fillcolor('sea green')
+        t.begin_fill()
+        for i in range(2):
+            t.forward(500)
+            t.left(90)
+            t.forward(405)
+            t.left(90)
+        t.end_fill()
+        
+        self.changerulebutton()
+        self.rulesshowing = False
+        t.update()
+
+    def changerulebutton(self):
+        if self.rulesshowing:
+            self.rulebuttontext = 'Show Rules'
+            
+        else:
+            self.rulebuttontext = 'Hide Rules'
+        self.createrulesbutton()
+        t.update()
 
     def getadjacent(self,x,y):
         adjacents = np.array([[x-1,y-1],[x-1,y],[x-1,y+1],[x,y+1],[x+1,y+1],[x+1,y],[x+1,y-1],[x,y-1]])
         
         return adjacents
     
+    def pickuppiece(self,x,y):
+        #picking up a piece
+            if self.isblack:
+                turn = 1
+            else:
+                turn = 0
+
+            thispiececolor = self.boardarray[(x,y)]
+            if thispiececolor != -1:
+                if thispiececolor == turn:
+                    print('There is a piece here')
+                    self.draw_square(x,y)
+                    self.adjacentarray = self.getadjacent(x,y)
+                    self.movingpiece = True
+                    self.piecetomove = [x,y,self.boardarray[(x,y)]]
+                    
+                else:
+                    print('You can\'t move this piece')
+
+            else:
+                print('There is NOT a piece here')    
+                
     def movepiece(self,xwin,ywin,x,y,color):
         #placing a piece
         if not self.alltilesplaced:
@@ -178,16 +241,26 @@ class Teeko:
                 
         #moving a piece
         elif self.movingpiece:
-            print(self.adjacentarray)
-
             #checks if the moving position is adjacent
             isadjacent = False
             for i in self.adjacentarray:
                 if i[0] == x and i[1] == y:
                     isadjacent = True
-                    
+
+            #if player wants to move a different piece        
+            if self.boardarray[(x,y)] == self.piecetomove[2]:
+                oldx = self.piecetomove[0]
+                oldy = self.piecetomove[1]
+                #removes old square
+                self.draw_square(oldx,oldy,'sea green')
+
+                self.movingpiece = False
+                self.adjacentarray = None
+                self.piecetomove = None
+                self.pickuppiece(x,y)
+            
             #moves the piece
-            if isadjacent and self.boardarray[(x,y)] == -1:
+            elif isadjacent and self.boardarray[(x,y)] == -1:
                 #draws new circle
                 self.draw_circle(-450 + y*80, -100 + (4-x)*80, str(self.piecetomove[2]))
                 self.boardarray[(x,y)] = self.piecetomove[2]
@@ -203,31 +276,17 @@ class Teeko:
 
                 self.movingpiece = False
                 self.adjacentarray = None
-                print(f"THeee: {self.piecetomove}")
                 self.piecetomove = None
                 self.isblack = not self.isblack
-
-        #picking up a piece
+            
+            
         else:
-            if self.isblack:
-                turn = 1
-            else:
-                turn = 0
-
-            thispiececolor = self.boardarray[(x,y)]
-            if thispiececolor != -1:
-                if thispiececolor == turn:
-                    print('there is a piece here')
-                    self.draw_square(x,y)
-                    self.adjacentarray = self.getadjacent(x,y)
-                    self.movingpiece = True
-                    self.piecetomove = [x,y,self.boardarray[(x,y)]]
-                    print(self.piecetomove)
-                else:
-                    print("you can't move this piece biatch")
-
-            else:
-                print("There is NOT a piece here")    
+            print('picking up')
+            thisx = x
+            thisy = y
+            self.pickuppiece(thisx,thisy)
+    
+    
 
     def buttonClick(self,x,y):
         
@@ -354,12 +413,16 @@ class Teeko:
         
         #Show rules
         if x > 200 and x < 300 and y > 250 and y < 270:
-            self.showrules()
-
+            if not self.rulesshowing:
+                self.showrules()
+            
+            else:
+                self.hiderules()
 
     def stop(self):
-        turtle.done()
+        t.done()
 
+#############################################################################################
 
 def drawtitle():
     '''
