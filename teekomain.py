@@ -345,36 +345,40 @@ class Teeko:
         Checks the current gamestate array to see if it matches a win condition
 
         '''
-        
-        #Finds the current positions of Black and converts them to a form we check
-        self.gameRed = game.copy()
-        self.gameRed[self.gameRed == 1] = -1
-        self.gameRed[self.gameRed == 0] = 1
-        
-        #Finds the current positions of Red and converts them to a form we check
-        self.gameBlack = game.copy()
-        self.gameBlack[self.gameBlack == 0] = -1
-        
-        
-        with open("teeko_winstates.txt") as winstates:
+
+        try:
             
-            for line in winstates.readlines():
-                line = line.strip().split("],[")
-                for i in range(5):
-                    line[i] = [int(j) for j in line[i].split(",")]
+            #Finds the current positions of Black and converts them to a form we check
+            self.gameRed = game.copy()
+            self.gameRed[self.gameRed == 1] = -1
+            self.gameRed[self.gameRed == 0] = 1
+            
+            #Finds the current positions of Red and converts them to a form we check
+            self.gameBlack = game.copy()
+            self.gameBlack[self.gameBlack == 0] = -1
+            
+            
+            with open("teeko_winstates.txt") as winstates:
                 
-                statearray = np.array(line)
-                
-                if np.array_equal(self.gameBlack, statearray):
-                    t.clear()
-                    t.bgcolor("sea green")
-                    self.drawendscreen(1)
-                
-                if np.array_equal(self.gameRed, statearray):
-                    t.clear()
-                    t.bgcolor("sea green")
-                    self.drawendscreen(2)
-        
+                for line in winstates.readlines():
+                    line = line.strip().split("],[")
+                    for i in range(5):
+                        line[i] = [int(j) for j in line[i].split(",")]
+                    
+                    statearray = np.array(line)
+                    
+                    if np.array_equal(self.gameBlack, statearray):
+                        t.clear()
+                        t.bgcolor("sea green")
+                        self.drawendscreen(1)
+                    
+                    if np.array_equal(self.gameRed, statearray):
+                        t.clear()
+                        t.bgcolor("sea green")
+                        self.drawendscreen(2)
+        except:
+            #In case the winstates are invalid, crash the game
+            t.bye()
 
     def buttonClick(self,x,y):
         
